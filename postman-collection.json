@@ -1,0 +1,238 @@
+{
+  "info": {
+    "name": "NBA Actor Framework API",
+    "description": "Collection Postman pour tester l'application NBA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Player Service",
+      "item": [
+        {
+          "name": "Create Player",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"1\",\n  \"name\": \"LeBron James\",\n  \"position\": \"SF\",\n  \"jerseyNumber\": 23,\n  \"teamId\": \"LAL\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/players/create",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api", "players", "create"]
+            }
+          }
+        },
+        {
+          "name": "Get Player Info",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8081/api/players/player-1/info",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api", "players", "player-1", "info"]
+            }
+          }
+        },
+        {
+          "name": "Join Game",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "http://localhost:8081/api/players/player-1/join-game",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api", "players", "player-1", "join-game"]
+            }
+          }
+        },
+        {
+          "name": "Perform Action",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"SCORE\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8081/api/players/player-1/action",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8081",
+              "path": ["api", "players", "player-1", "action"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Team Service",
+      "item": [
+        {
+          "name": "Create Team",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"LAL\",\n  \"name\": \"Lakers\",\n  \"city\": \"Los Angeles\",\n  \"coachId\": \"coach1\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8082/api/teams/create",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8082",
+              "path": ["api", "teams", "create"]
+            }
+          }
+        },
+        {
+          "name": "Select Players",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\"1\", \"2\", \"3\", \"4\", \"5\"]"
+            },
+            "url": {
+              "raw": "http://localhost:8082/api/teams/LAL/coach/select-players",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8082",
+              "path": ["api", "teams", "LAL", "coach", "select-players"]
+            }
+          }
+        },
+        {
+          "name": "Adjust Strategy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"strategy\": \"FAST_BREAK\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8082/api/teams/LAL/coach/strategy",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8082",
+              "path": ["api", "teams", "LAL", "coach", "strategy"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Game Service",
+      "item": [
+        {
+          "name": "Create Game",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"game1\",\n  \"homeTeamId\": \"LAL\",\n  \"awayTeamId\": \"BOS\",\n  \"status\": \"SCHEDULED\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8083/api/games/create",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "games", "create"]
+            }
+          }
+        },
+        {
+          "name": "Start Game",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "http://localhost:8083/api/games/game1/start",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "games", "game1", "start"]
+            }
+          }
+        },
+        {
+          "name": "Get Score",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:8083/api/games/game1/score",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "games", "game1", "score"]
+            }
+          }
+        },
+        {
+          "name": "Record Action",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"playerId\": \"1\",\n  \"action\": \"SCORE\",\n  \"team\": \"HOME\",\n  \"points\": 2\n}"
+            },
+            "url": {
+              "raw": "http://localhost:8083/api/games/game1/action",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "8083",
+              "path": ["api", "games", "game1", "action"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

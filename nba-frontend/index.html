@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA Actor Framework - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: opacity 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .scoreboard {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .scoreboard h2 {
+            color: white;
+            border-bottom-color: white;
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+            font-size: 2em;
+        }
+
+        .team-score {
+            text-align: center;
+        }
+
+        .team-score h3 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .score-value {
+            font-size: 3em;
+            font-weight: bold;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            font-size: 1.1em;
+        }
+
+        .status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status.active {
+            background: #4caf50;
+        }
+
+        .status.scheduled {
+            background: #ff9800;
+        }
+
+        .status.finished {
+            background: #f44336;
+        }
+
+        .log-area {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+        }
+
+        .log-entry.error {
+            color: #ff4444;
+        }
+
+        .log-entry.success {
+            color: #44ff44;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            padding: 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏀 NBA Actor Framework Dashboard</h1>
+        
+        <div class="dashboard">
+            <!-- Player Card -->
+            <div class="card">
+                <h2>👤 Créer un Joueur</h2>
+                <form id="playerForm">
+                    <div class="form-group">
+                        <label>ID Joueur:</label>
+                        <input type="text" id="playerId" placeholder="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nom:</label>
+                        <input type="text" id="playerName" placeholder="LeBron James" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Position:</label>
+                        <select id="playerPosition" required>
+                            <option value="PG">Point Guard (PG)</option>
+                            <option value="SG">Shooting Guard (SG)</option>
+                            <option value="SF">Small Forward (SF)</option>
+                            <option value="PF">Power Forward (PF)</option>
+                            <option value="C">Center (C)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Numéro de maillot:</label>
+                        <input type="number" id="playerJersey" placeholder="23" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Équipe:</label>
+                        <select id="playerTeamId" required>
+                            <option value="">-- Sélectionnez une équipe --</option>
+                        </select>
+                        <small style="color: #666; display: block; margin-top: 5px;">Créez d'abord une équipe si aucune n'est disponible</small>
+                    </div>
+                    <button type="submit">Créer Joueur</button>
+                </form>
+                <hr style="margin: 20px 0; border: 1px solid #ddd;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">📊 Voir les Statistiques</h3>
+                <div class="form-group">
+                    <label>ID du Joueur:</label>
+                    <input type="text" id="playerIdForStats" placeholder="1" style="margin-bottom: 10px;">
+                    <small style="color: #666; display: block; margin-top: 5px;">Entrez juste le numéro (ex: 1, 2, 3...)</small>
+                </div>
+                <button type="button" onclick="loadPlayerStats()" style="margin-bottom: 15px;">Charger les Stats</button>
+                <button type="button" onclick="startAutoRefresh()" style="margin-bottom: 15px; background: #4caf50;">🔄 Auto-rafraîchissement</button>
+                <button type="button" onclick="stopAutoRefresh()" style="margin-bottom: 15px; background: #f44336;">⏸️ Arrêter</button>
+                
+                <div id="playerStatsDisplay" style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 15px; border: 2px solid #667eea; display: none;">
+                    <h3 style="margin-bottom: 15px; color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 10px;">📊 Statistiques du Joueur</h3>
+                    <div id="playerStatsContent">
+                        <p style="color: #999;">Chargement...</p>
+                    </div>
+                </div>
+                <div class="log-area" id="playerLog"></div>
+            </div>
+
+            <!-- Team Card -->
+            <div class="card">
+                <h2>👔 Créer une Équipe</h2>
+                <form id="teamForm">
+                    <div class="form-group">
+                        <label>ID Équipe:</label>
+                        <input type="text" id="teamId" placeholder="LAL" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nom:</label>
+                        <input type="text" id="teamName" placeholder="Lakers" required>
+                    </div>
+                    <button type="submit">Créer Équipe</button>
+                </form>
+                <hr style="margin: 20px 0; border: 1px solid #ddd;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">📋 Équipes Créées</h3>
+                <button type="button" onclick="loadTeams()" style="margin-bottom: 15px;">🔄 Rafraîchir</button>
+                <div id="teamsList" style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 10px; max-height: 300px; overflow-y: auto;">
+                    <p style="color: #999;">Cliquez sur "Rafraîchir" pour voir les équipes</p>
+                </div>
+                <div class="log-area" id="teamLog"></div>
+            </div>
+
+            <!-- Game Card -->
+            <div class="card">
+                <h2>🎮 Créer un Match</h2>
+                <form id="gameForm">
+                    <div class="form-group">
+                        <label>ID Match:</label>
+                        <input type="text" id="gameId" placeholder="game1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Équipe Domicile:</label>
+                        <select id="homeTeam" required onchange="validateTeamsForGame()">
+                            <option value="">-- Sélectionnez une équipe --</option>
+                        </select>
+                        <small id="homeTeamInfo" style="color: #666; display: block; margin-top: 5px;"></small>
+                    </div>
+                    <div class="form-group">
+                        <label>Équipe Visiteur:</label>
+                        <select id="awayTeam" required onchange="validateTeamsForGame()">
+                            <option value="">-- Sélectionnez une équipe --</option>
+                        </select>
+                        <small id="awayTeamInfo" style="color: #666; display: block; margin-top: 5px;"></small>
+                    </div>
+                    <button type="submit" id="createGameBtn" disabled>Créer Match</button>
+                    <small style="color: #f44336; display: block; margin-top: 5px;" id="gameValidationMsg">
+                        Chaque équipe doit avoir au moins 5 joueurs pour créer un match
+                    </small>
+                </form>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label>ID Match pour Actions:</label>
+                    <input type="text" id="gameIdForActions" placeholder="game1">
+                </div>
+                <div class="actions-grid">
+                    <button class="action-btn" onclick="startGame()">Démarrer Match</button>
+                    <button class="action-btn" onclick="getScore()">Voir Score</button>
+                    <button class="action-btn" onclick="endGame()" style="background: #f44336;">Terminer Match</button>
+                    <button class="action-btn" onclick="generateCompleteGame()" style="background: #4caf50;">🎲 Générer Match Complet</button>
+                </div>
+                <div class="log-area" id="gameLog"></div>
+            </div>
+
+            <!-- Scoreboard -->
+            <div class="card scoreboard">
+                <h2>📊 Tableau de Score</h2>
+                <div class="score-display">
+                    <div class="team-score">
+                        <h3 id="homeTeamName">HOME</h3>
+                        <div class="score-value" id="homeScore">0</div>
+                    </div>
+                    <div style="font-size: 2em; margin: 0 20px;">-</div>
+                    <div class="team-score">
+                        <h3 id="awayTeamName">AWAY</h3>
+                        <div class="score-value" id="awayScore">0</div>
+                    </div>
+                </div>
+                <div class="game-info">
+                    <div>Quart-temps: <span id="quarter">1</span></div>
+                    <div>Temps restant: <span id="timeRemaining">12:00</span></div>
+                    <div>Statut: <span class="status scheduled" id="gameStatus">SCHEDULED</span></div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <div class="form-group" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                        <label style="color: white;">ID Joueur pour Actions:</label>
+                        <input type="text" id="actionPlayerId" placeholder="1" style="margin-top: 5px;">
+                        <small style="color: rgba(255,255,255,0.8); display: block; margin-top: 5px;">
+                            Utilisez l'ID du joueur créé (ex: 1, 2, 3...). Si vide, utilise le joueur du formulaire.
+                        </small>
+                    </div>
+                    <h3 style="margin-bottom: 10px;">Actions Rapides - HOME</h3>
+                    <div class="actions-grid">
+                        <button class="action-btn" onclick="recordAction('SCORE', 2, 'HOME')">HOME 2pts</button>
+                        <button class="action-btn" onclick="recordAction('SCORE', 3, 'HOME')">HOME 3pts</button>
+                        <button class="action-btn" onclick="recordAction('REBOUND', 0, 'HOME')">HOME Rebond</button>
+                        <button class="action-btn" onclick="recordAction('ASSIST', 0, 'HOME')">HOME Passe D</button>
+                    </div>
+                    <h3 style="margin-bottom: 10px; margin-top: 15px;">Actions Rapides - AWAY</h3>
+                    <div class="actions-grid">
+                        <button class="action-btn" onclick="recordAction('SCORE', 2, 'AWAY')">AWAY 2pts</button>
+                        <button class="action-btn" onclick="recordAction('SCORE', 3, 'AWAY')">AWAY 3pts</button>
+                        <button class="action-btn" onclick="recordAction('REBOUND', 0, 'AWAY')">AWAY Rebond</button>
+                        <button class="action-btn" onclick="recordAction('ASSIST', 0, 'AWAY')">AWAY Passe D</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = {
+            player: 'http://localhost:8081',
+            team: 'http://localhost:8082',
+            game: 'http://localhost:8083'
+        };
+
+        let currentGameId = null;
+        let scoreInterval = null;
+        let statsAutoRefreshInterval = null;
+
+        // Player Form
+        document.getElementById('playerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const teamId = document.getElementById('playerTeamId').value;
+            if (!teamId) {
+                alert('Veuillez sélectionner une équipe. Créez d\'abord une équipe si nécessaire.');
+                return;
+            }
+            
+            const player = {
+                id: document.getElementById('playerId').value,
+                name: document.getElementById('playerName').value,
+                position: document.getElementById('playerPosition').value,
+                jerseyNumber: parseInt(document.getElementById('playerJersey').value),
+                teamId: teamId
+            };
+
+            try {
+                const response = await fetch(`${API_BASE.player}/api/players/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(player)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    log('playerLog', `❌ Erreur: ${data.message || data.error}`, 'error');
+                    if (data.message && data.message.includes('n\'existe pas')) {
+                        // Rafraîchir la liste des équipes si l'équipe n'existe pas
+                        loadTeamsForSelect();
+                    }
+                    return;
+                }
+                
+                log('playerLog', `✅ Joueur créé: ${player.name} (${data.actorId})`, 'success');
+                
+                // Rafraîchir la liste des équipes pour afficher le nouveau joueur
+                setTimeout(() => {
+                    loadTeams();
+                    loadTeamsForSelect();
+                }, 500);
+            } catch (error) {
+                log('playerLog', `❌ Erreur: ${error.message}`, 'error');
+            }
+        });
+
+        // Team Form
+        document.getElementById('teamForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const team = {
+                id: document.getElementById('teamId').value,
+                name: document.getElementById('teamName').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE.team}/api/teams/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(team)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    log('teamLog', `❌ Erreur: ${errorData.message || errorData.error}`, 'error');
+                    return;
+                }
+                
+                const data = await response.json();
+                log('teamLog', `✅ Équipe créée: ${team.name} (${data.coachActorId})`, 'success');
+                loadTeams(); // Rafraîchir la liste
+                loadTeamsForSelect(); // Rafraîchir le select dans le formulaire joueur
+                loadTeamsForGame(); // Rafraîchir les selects pour les matchs
+            } catch (error) {
+                log('teamLog', `❌ Erreur: ${error.message}`, 'error');
+            }
+        });
+
+        // Charger les équipes pour les selects de match
+        async function loadTeamsForGame() {
+            try {
+                const response = await fetch(`${API_BASE.team}/api/teams`);
+                const teams = await response.json();
+                
+                const homeSelect = document.getElementById('homeTeam');
+                const awaySelect = document.getElementById('awayTeam');
+                
+                homeSelect.innerHTML = '<option value="">-- Sélectionnez une équipe --</option>';
+                awaySelect.innerHTML = '<option value="">-- Sélectionnez une équipe --</option>';
+                
+                teams.forEach(team => {
+                    const homeOption = document.createElement('option');
+                    homeOption.value = team.id;
+                    homeOption.textContent = `${team.name} (${team.id})`;
+                    homeSelect.appendChild(homeOption);
+                    
+                    const awayOption = document.createElement('option');
+                    awayOption.value = team.id;
+                    awayOption.textContent = `${team.name} (${team.id})`;
+                    awaySelect.appendChild(awayOption);
+                });
+            } catch (error) {
+                log('gameLog', `❌ Erreur chargement équipes: ${error.message}`, 'error');
+            }
+        }
+        
+        // Valider que les équipes ont au moins 5 joueurs
+        async function validateTeamsForGame() {
+            const homeTeamId = document.getElementById('homeTeam').value;
+            const awayTeamId = document.getElementById('awayTeam').value;
+            const createBtn = document.getElementById('createGameBtn');
+            const validationMsg = document.getElementById('gameValidationMsg');
+            const homeTeamInfo = document.getElementById('homeTeamInfo');
+            const awayTeamInfo = document.getElementById('awayTeamInfo');
+            
+            // Réinitialiser les infos
+            homeTeamInfo.textContent = '';
+            awayTeamInfo.textContent = '';
+            createBtn.disabled = true;
+            validationMsg.style.display = 'block';
+            
+            if (!homeTeamId && !awayTeamId) {
+                validationMsg.textContent = 'Sélectionnez deux équipes pour créer un match';
+                return;
+            }
+            
+            if (homeTeamId === awayTeamId && homeTeamId) {
+                validationMsg.textContent = 'Les deux équipes doivent être différentes';
+                return;
+            }
+            
+            let homePlayerCount = 0;
+            let awayPlayerCount = 0;
+            
+            // Vérifier l'équipe domicile
+            if (homeTeamId) {
+                try {
+                    const response = await fetch(`${API_BASE.team}/api/teams/${homeTeamId}`);
+                    if (response.ok) {
+                        const team = await response.json();
+                        homePlayerCount = team.playerIds ? team.playerIds.length : 0;
+                        if (homePlayerCount >= 5) {
+                            homeTeamInfo.textContent = `✅ ${homePlayerCount} joueur(s) disponible(s)`;
+                            homeTeamInfo.style.color = '#4caf50';
+                        } else {
+                            homeTeamInfo.textContent = `❌ ${homePlayerCount} joueur(s) - Minimum 5 requis`;
+                            homeTeamInfo.style.color = '#f44336';
+                        }
+                    }
+                } catch (error) {
+                    log('gameLog', `❌ Erreur vérification équipe domicile: ${error.message}`, 'error');
+                }
+            }
+            
+            // Vérifier l'équipe visiteur
+            if (awayTeamId) {
+                try {
+                    const response = await fetch(`${API_BASE.team}/api/teams/${awayTeamId}`);
+                    if (response.ok) {
+                        const team = await response.json();
+                        awayPlayerCount = team.playerIds ? team.playerIds.length : 0;
+                        if (awayPlayerCount >= 5) {
+                            awayTeamInfo.textContent = `✅ ${awayPlayerCount} joueur(s) disponible(s)`;
+                            awayTeamInfo.style.color = '#4caf50';
+                        } else {
+                            awayTeamInfo.textContent = `❌ ${awayPlayerCount} joueur(s) - Minimum 5 requis`;
+                            awayTeamInfo.style.color = '#f44336';
+                        }
+                    }
+                } catch (error) {
+                    log('gameLog', `❌ Erreur vérification équipe visiteur: ${error.message}`, 'error');
+                }
+            }
+            
+            // Activer le bouton si les deux équipes ont au moins 5 joueurs
+            if (homePlayerCount >= 5 && awayPlayerCount >= 5 && homeTeamId && awayTeamId && homeTeamId !== awayTeamId) {
+                createBtn.disabled = false;
+                validationMsg.style.display = 'none';
+            } else {
+                createBtn.disabled = true;
+                validationMsg.style.display = 'block';
+                if (homePlayerCount < 5 || awayPlayerCount < 5) {
+                    validationMsg.textContent = 'Chaque équipe doit avoir au moins 5 joueurs pour créer un match';
+                } else if (!homeTeamId || !awayTeamId) {
+                    validationMsg.textContent = 'Sélectionnez deux équipes pour créer un match';
+                }
+            }
+        }
+        
+        // Game Form
+        document.getElementById('gameForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const game = {
+                id: document.getElementById('gameId').value,
+                homeTeamId: document.getElementById('homeTeam').value,
+                awayTeamId: document.getElementById('awayTeam').value,
+                status: 'SCHEDULED'
+            };
+
+            try {
+                const response = await fetch(`${API_BASE.game}/api/games/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(game)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    log('gameLog', `❌ Erreur: ${errorData.message || errorData.error}`, 'error');
+                    if (errorData.homeTeamExists !== undefined) {
+                        alert(`Équipe domicile existe: ${errorData.homeTeamExists}\nÉquipe visiteur existe: ${errorData.awayTeamExists}`);
+                    }
+                    return;
+                }
+                
+                const data = await response.json();
+                currentGameId = game.id;
+                document.getElementById('gameIdForActions').value = game.id;
+                document.getElementById('homeTeamName').textContent = game.homeTeamId;
+                document.getElementById('awayTeamName').textContent = game.awayTeamId;
+                log('gameLog', `✅ Match créé: ${game.id}`, 'success');
+            } catch (error) {
+                log('gameLog', `❌ Erreur: ${error.message}`, 'error');
+            }
+        });
+
+        async function startGame() {
+            const gameId = document.getElementById('gameIdForActions').value || currentGameId;
+            if (!gameId) {
+                alert('Veuillez créer un match d\'abord');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE.game}/api/games/${gameId}/start`, {
+                    method: 'POST'
+                });
+                const text = await response.text();
+                log('gameLog', `✅ Match démarré: ${text}`, 'success');
+                document.getElementById('gameStatus').textContent = 'IN_PROGRESS';
+                document.getElementById('gameStatus').className = 'status active';
+                
+                // Démarrer le rafraîchissement automatique du score
+                if (scoreInterval) clearInterval(scoreInterval);
+                scoreInterval = setInterval(getScore, 2000);
+            } catch (error) {
+                log('gameLog', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function getScore() {
+            const gameId = document.getElementById('gameIdForActions').value || currentGameId;
+            if (!gameId) return;
+
+            try {
+                const response = await fetch(`${API_BASE.game}/api/games/${gameId}/score`);
+                const score = await response.json();
+                
+                document.getElementById('homeScore').textContent = score.homeScore || 0;
+                document.getElementById('awayScore').textContent = score.awayScore || 0;
+                document.getElementById('quarter').textContent = score.quarter || 1;
+                
+                const minutes = Math.floor((score.timeRemaining || 0) / 60);
+                const seconds = (score.timeRemaining || 0) % 60;
+                document.getElementById('timeRemaining').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (score.status) {
+                    document.getElementById('gameStatus').textContent = score.status;
+                    document.getElementById('gameStatus').className = 
+                        `status ${score.status.toLowerCase().replace('_', '-')}`;
+                }
+            } catch (error) {
+                console.error('Erreur récupération score:', error);
+            }
+        }
+
+        async function recordAction(action, points, team = 'HOME') {
+            const gameId = document.getElementById('gameIdForActions').value || currentGameId;
+            if (!gameId) {
+                alert('Veuillez créer un match d\'abord');
+                return;
+            }
+
+            // Récupérer le playerId depuis le champ spécifique ou le formulaire de création
+            const actionPlayerId = document.getElementById('actionPlayerId').value;
+            const formPlayerId = document.getElementById('playerId').value;
+            const playerId = actionPlayerId || formPlayerId || '1';
+
+            const actionData = {
+                playerId: playerId,
+                action: action,
+                team: team,
+                points: points
+            };
+
+            try {
+                const response = await fetch(`${API_BASE.game}/api/games/${gameId}/action`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(actionData)
+                });
+                
+                if (response.ok) {
+                    log('gameLog', `✅ Action enregistrée: ${action} (${team}) pour joueur ${playerId}`, 'success');
+                    setTimeout(getScore, 500);
+                    
+                    // Rafraîchir les stats du joueur si elles sont affichées
+                    const statsPlayerId = document.getElementById('playerIdForStats').value.trim();
+                    if (statsPlayerId) {
+                        // Attendre un peu pour que le message arrive au joueur
+                        setTimeout(() => {
+                            if (statsAutoRefreshInterval) {
+                                // Si auto-refresh est actif, il va rafraîchir automatiquement
+                                return;
+                            }
+                            loadPlayerStats();
+                        }, 2000);
+                    }
+                } else {
+                    log('gameLog', `❌ Erreur HTTP ${response.status}`, 'error');
+                }
+            } catch (error) {
+                log('gameLog', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+
+
+
+        function log(elementId, message, type = '') {
+            const logArea = document.getElementById(elementId);
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logArea.appendChild(entry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // Rafraîchissement automatique du score toutes les 5 secondes si un match est actif
+        setInterval(() => {
+            if (currentGameId) {
+                getScore();
+            }
+        }, 5000);
+        
+        // Charger les équipes pour le select
+        async function loadTeamsForSelect() {
+            try {
+                const response = await fetch(`${API_BASE.team}/api/teams`);
+                const teams = await response.json();
+                
+                const select = document.getElementById('playerTeamId');
+                const currentValue = select.value;
+                
+                // Garder l'option par défaut
+                select.innerHTML = '<option value="">-- Sélectionnez une équipe --</option>';
+                
+                teams.forEach(team => {
+                    const option = document.createElement('option');
+                    option.value = team.id;
+                    option.textContent = `${team.name} (${team.id})`;
+                    select.appendChild(option);
+                });
+                
+                // Restaurer la valeur sélectionnée si elle existe toujours
+                if (currentValue && teams.some(t => t.id === currentValue)) {
+                    select.value = currentValue;
+                }
+            } catch (error) {
+                log('playerLog', `❌ Erreur chargement équipes pour select: ${error.message}`, 'error');
+            }
+        }
+        
+        // Charger les équipes avec leurs joueurs
+        async function loadTeams() {
+            try {
+                const response = await fetch(`${API_BASE.team}/api/teams`);
+                const teams = await response.json();
+                
+                const teamsListDiv = document.getElementById('teamsList');
+                if (teams.length === 0) {
+                    teamsListDiv.innerHTML = '<p style="color: #999;">Aucune équipe créée</p>';
+                    return;
+                }
+                
+                let html = '<div style="display: grid; gap: 10px;">';
+                for (const team of teams) {
+                    // Charger les détails des joueurs pour chaque équipe
+                    let playersHtml = '';
+                    if (team.playerIds && team.playerIds.length > 0) {
+                        playersHtml = '<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">';
+                        playersHtml += `<strong style="color: #667eea;">Joueurs (${team.playerIds.length}):</strong><br>`;
+                        playersHtml += '<div style="display: grid; gap: 5px; margin-top: 5px;">';
+                        
+                        // Essayer de récupérer les détails de chaque joueur
+                        for (const playerId of team.playerIds) {
+                            try {
+                                const playerResponse = await fetch(`${API_BASE.player}/api/players/player-${playerId}/info`);
+                                if (playerResponse.ok) {
+                                    const playerInfo = await playerResponse.json();
+                                    const player = playerInfo.player || {};
+                                    playersHtml += `
+                                        <div style="padding: 5px; background: #f0f0f0; border-radius: 5px; font-size: 0.9em;">
+                                            <strong>#${player.jerseyNumber || '?'}</strong> ${player.name || playerId} - ${player.position || 'N/A'}
+                                        </div>
+                                    `;
+                                } else {
+                                    playersHtml += `
+                                        <div style="padding: 5px; background: #f0f0f0; border-radius: 5px; font-size: 0.9em;">
+                                            Joueur ID: ${playerId}
+                                        </div>
+                                    `;
+                                }
+                            } catch (e) {
+                                playersHtml += `
+                                    <div style="padding: 5px; background: #f0f0f0; border-radius: 5px; font-size: 0.9em;">
+                                        Joueur ID: ${playerId}
+                                    </div>
+                                `;
+                            }
+                        }
+                        playersHtml += '</div></div>';
+                    } else {
+                        playersHtml = '<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd; color: #999; font-size: 0.9em;">Aucun joueur dans cette équipe</div>';
+                    }
+                    
+                    html += `
+                        <div style="background: white; padding: 10px; border-radius: 8px; border: 2px solid #667eea;">
+                            <strong>${team.name}</strong> (${team.id})<br>
+                            <small style="color: #4caf50;">Victoires: ${team.wins || 0}</small> | 
+                            <small style="color: #f44336;">Défaites: ${team.losses || 0}</small>
+                            ${playersHtml}
+                        </div>
+                    `;
+                }
+                html += '</div>';
+                teamsListDiv.innerHTML = html;
+            } catch (error) {
+                log('teamLog', `❌ Erreur chargement équipes: ${error.message}`, 'error');
+            }
+        }
+        
+        // Terminer le match
+        async function endGame() {
+            const gameId = document.getElementById('gameIdForActions').value || currentGameId;
+            if (!gameId) {
+                alert('Veuillez créer un match d\'abord');
+                return;
+            }
+            
+            if (!confirm('Êtes-vous sûr de vouloir terminer le match ?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE.game}/api/games/${gameId}/end`, {
+                    method: 'POST'
+                });
+                const text = await response.text();
+                log('gameLog', `✅ Match terminé: ${text}`, 'success');
+                document.getElementById('gameStatus').textContent = 'FINISHED';
+                document.getElementById('gameStatus').className = 'status finished';
+                
+                // Rafraîchir les équipes pour voir les nouveaux records
+                setTimeout(loadTeams, 1000);
+            } catch (error) {
+                log('gameLog', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        // Générer un match complet avec score et stats
+        async function generateCompleteGame() {
+            const gameId = document.getElementById('gameIdForActions').value || currentGameId;
+            if (!gameId) {
+                alert('Veuillez créer un match d\'abord');
+                return;
+            }
+            
+            if (!confirm('Générer un match complet ?\n\nCela va :\n- Générer un score réaliste\n- Générer des statistiques pour tous les joueurs\n- Terminer le match automatiquement')) {
+                return;
+            }
+            
+            try {
+                log('gameLog', '🎲 Génération du match complet en cours...', 'success');
+                const response = await fetch(`${API_BASE.game}/api/games/${gameId}/generate-complete`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    log('gameLog', `❌ Erreur: ${errorData.message || errorData.error}`, 'error');
+                    return;
+                }
+                
+                const data = await response.json();
+                log('gameLog', `✅ ${data.message}`, 'success');
+                
+                // Mettre à jour l'affichage
+                document.getElementById('gameStatus').textContent = 'FINISHED';
+                document.getElementById('gameStatus').className = 'status finished';
+                
+                // Rafraîchir le score et les équipes
+                setTimeout(() => {
+                    getScore();
+                    loadTeams();
+                }, 1000);
+            } catch (error) {
+                log('gameLog', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        // Charger les stats d'un joueur (fonction existante, on la garde)
+        async function loadPlayerStats() {
+            const playerId = document.getElementById('playerIdForStats').value.trim();
+            if (!playerId) {
+                alert('Veuillez entrer un ID de joueur');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE.player}/api/players/player-${playerId}/info`);
+                if (!response.ok) {
+                    document.getElementById('playerStatsDisplay').style.display = 'none';
+                    alert('Joueur non trouvé');
+                    return;
+                }
+                
+                const playerInfo = await response.json();
+                const displayDiv = document.getElementById('playerStatsDisplay');
+                const contentDiv = document.getElementById('playerStatsContent');
+                
+                displayDiv.style.display = 'block';
+                
+                const player = playerInfo.player || {};
+                const stats = playerInfo.stats || {};
+                
+                contentDiv.innerHTML = `
+                    <div style="margin-bottom: 15px;">
+                        <strong>${player.name || 'N/A'}</strong> - ${player.position || 'N/A'} #${player.jerseyNumber || 'N/A'}<br>
+                        <small style="color: #666;">Équipe: ${player.teamId || 'N/A'}</small>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                        <div><strong>Points:</strong> ${stats.points || 0}</div>
+                        <div><strong>Rebonds:</strong> ${stats.rebounds || 0}</div>
+                        <div><strong>Passes D:</strong> ${stats.assists || 0}</div>
+                        <div><strong>Interceptions:</strong> ${stats.steals || 0}</div>
+                        <div><strong>Contres:</strong> ${stats.blocks || 0}</div>
+                        <div><strong>Fatigue:</strong> ${playerInfo.fatigueLevel || 0}%</div>
+                    </div>
+                `;
+            } catch (error) {
+                log('playerLog', `❌ Erreur: ${error.message}`, 'error');
+            }
+        }
+        
+        function startAutoRefresh() {
+            if (statsAutoRefreshInterval) {
+                clearInterval(statsAutoRefreshInterval);
+            }
+            statsAutoRefreshInterval = setInterval(() => {
+                const playerId = document.getElementById('playerIdForStats').value.trim();
+                if (playerId) {
+                    loadPlayerStats();
+                }
+            }, 3000);
+            log('playerLog', '🔄 Auto-rafraîchissement activé (toutes les 3 secondes)', 'success');
+        }
+        
+        function stopAutoRefresh() {
+            if (statsAutoRefreshInterval) {
+                clearInterval(statsAutoRefreshInterval);
+                statsAutoRefreshInterval = null;
+                log('playerLog', '⏸️ Auto-rafraîchissement arrêté', 'success');
+            }
+        }
+        // Charger les équipes au chargement de la page
+        loadTeams();
+        loadTeamsForSelect();
+        loadTeamsForGame();
+        
+        // Rafraîchir les équipes toutes les 5 secondes pour voir les nouveaux joueurs
+        setInterval(() => {
+            loadTeams();
+            loadTeamsForSelect();
+            loadTeamsForGame();
+        }, 5000);
+    </script>
+</body>
+</html>
+
+
