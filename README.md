@@ -56,8 +56,30 @@ actor-framework-project/
 mvn clean install
 ```
 
-### 2. Démarrer Eureka Server
+### 2. Démarrer tous les services
 
+#### Option A : Scripts automatiques (recommandé)
+
+**Linux/Mac :**
+```bash
+chmod +x start-all.sh
+./start-all.sh
+```
+
+**Windows :**
+```batch
+start-all.bat
+```
+
+Les scripts démarrent automatiquement :
+- Eureka Server (port 8761)
+- Player Service (port 8081)
+- Team Service (port 8082)
+- Game Service (port 8083)
+
+#### Option B : Démarrage manuel
+
+**Démarrer Eureka Server :**
 ```bash
 cd eureka-server
 mvn spring-boot:run
@@ -65,8 +87,7 @@ mvn spring-boot:run
 
 Eureka sera accessible sur http://localhost:8761
 
-### 3. Démarrer les microservices (dans des terminaux séparés)
-
+**Démarrer les microservices (dans des terminaux séparés) :**
 ```bash
 # Terminal 1 - Player Service
 cd nba-player-service
@@ -192,6 +213,12 @@ mvn test
 - Tests du framework (`ActorSystemTest`)
 - Tests des acteurs NBA (`PlayerActorTest`)
 
+### Collection Postman
+
+Une collection Postman est disponible dans `postman-collection.json` pour tester toutes les APIs REST :
+- Importez la collection dans Postman
+- Tous les endpoints sont pré-configurés avec des exemples de requêtes
+
 ## Logs
 
 Les logs des acteurs sont écrits dans le répertoire `logs/actors/` avec un fichier par acteur :
@@ -199,6 +226,8 @@ Les logs des acteurs sont écrits dans le répertoire `logs/actors/` avec un fic
 - Contenu : Toutes les actions de l'acteur (création, messages, erreurs)
 
 ## Architecture et Concepts
+
+Pour plus de détails sur l'architecture, consultez `ARCHITECTURE.md`.
 
 ### Communication entre Acteurs
 
@@ -218,6 +247,13 @@ Le framework implémente un système de supervision hiérarchique :
 - Les acteurs peuvent être créés dynamiquement selon la charge
 - Le système utilise un pool de threads configurable
 - Support de la découverte de services pour la distribution
+
+## Documentation Complémentaire
+
+- `ARCHITECTURE.md` : Architecture détaillée du framework
+- `SPRING_BOOT_CONCEPTS.md` : Concepts Spring Boot utilisés
+- `COMMUNICATION_INTER_MICROSERVICES.md` : Détails sur la communication inter-microservices
+- `README_FRONTEND.md` : Guide d'utilisation de l'interface web
 
 ## Bibliographie
 
